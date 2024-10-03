@@ -36,7 +36,7 @@ const App: React.FC = () => {
             <Layout>
               <Routes>
                 <Route path="/" element={<WordlistPage />} />
-                <Route path="/play" element={<PlayPage />} />
+                <Route path="/play/:listId" element={<PlayPage />} />
                 <Route path="/account" element={<AccountPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/create-list" element={<CreateListPage />} />
