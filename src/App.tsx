@@ -1,40 +1,44 @@
-import { useEffect, useState } from "react";
-import type { Schema } from "../amplify/data/resource";
-import { generateClient } from "aws-amplify/data";
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import "./App.css";
+import Layout from "./components/Layout";
+import PlayPage from "./pages/PlayPage.tsx";
+import AccountPage from "./pages/AccountPage.tsx";
+import SettingsPage from "./pages/SettingsPage.tsx";
+import WordlistPage from "./pages/WordlistPage";
+import CreateListPage from './pages/CreateListPage';
 
-const client = generateClient<Schema>();
+const LoadingScreen: React.FC = () => (
+  <div>Loading...</div>
+);
 
-function App() {
-  const [todos, setTodos] = useState<Array<Schema["Todo"]["type"]>>([]);
+const App: React.FC = () => {
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    client.models.Todo.observeQuery().subscribe({
-      next: (data) => setTodos([...data.items]),
-    });
+    // Simulate loading process
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000); // Adjust time as needed
+
+    return () => clearTimeout(timer);
   }, []);
 
-  function createTodo() {
-    client.models.Todo.create({ content: window.prompt("Todo content") });
-  }
-
   return (
-    <main>
-      <h1>My todos</h1>
-      <button onClick={createTodo}>+ new</button>
-      <ul>
-        {todos.map((todo) => (
-          <li key={todo.id}>{todo.content}</li>
-        ))}
-      </ul>
-      <div>
-        🥳 App successfully hosted. Try creating a new todo.
-        <br />
-        <a href="https://docs.amplify.aws/react/start/quickstart/#make-frontend-updates">
-          Review next step of this tutorial.
-        </a>
-      </div>
-    </main>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={
+            isLoading ? <LoadingScreen /> : <Navigate to="/wordlist" replace />
+          } />
+          <Route path="wordlist" element={<WordlistPage />} />
+          <Route path="play" element={<PlayPage />} />
+          <Route path="account" element={<AccountPage />} />
+          <Route path="settings" element={<SettingsPage />} />
+          <Route path="/create-list" element={<CreateListPage />} />
+        </Route>
+      </Routes>
+    </Router>
   );
-}
-
+};
 export default App;
