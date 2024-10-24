@@ -73,7 +73,7 @@ const PlayPage: React.FC = () => {
         max={21000}
         step={1000}
         value={wordInterval}
-        onChange={(event: Event, value: number | number[]) => {
+        onChange={(_, value: number | number[]) => {
           const newValue = value as number;
           if (newValue === 21000) {
             setIsTapMode(true);
@@ -82,6 +82,7 @@ const PlayPage: React.FC = () => {
             setWordInterval(newValue);
           }
         }}
+        
         
         sx={{
           height: 150,
