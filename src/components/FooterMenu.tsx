@@ -10,23 +10,24 @@ const FooterMenu: React.FC = () => {
       alignItems: 'center',
       backgroundColor: '#fff',
       borderTop: '1px solid #dbdbdb',
-      padding: '10px 0',
+      padding: '16px 0',
       position: 'fixed',
       bottom: 0,
       left: 0,
       right: 0,
+      height: '80px'
     }}>
       <Link to="/" style={iconStyle}>
-        <Home />
+        <Home sx={{ fontSize: 36 }} />
       </Link>
       <Link to="/play" style={iconStyle}>
-        <PlayArrow />
+        <PlayArrow sx={{ fontSize: 36 }} />
       </Link>
       <Link to="/account" style={iconStyle}>
-        <Person />
+        <Person sx={{ fontSize: 36 }} />
       </Link>
       <Link to="/settings" style={iconStyle}>
-        <Settings />
+        <Settings sx={{ fontSize: 36 }} />
       </Link>
     </nav>
   );
@@ -38,7 +39,7 @@ const iconStyle = {
   display: 'flex',
   flexDirection: 'column' as const,
   alignItems: 'center',
+  padding: '8px 20px',
 };
-
 
 export default FooterMenu;

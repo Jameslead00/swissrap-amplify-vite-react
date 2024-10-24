@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { generateClient } from 'aws-amplify/api';
 import { Schema } from '../../amplify/data/resource';
+import { Slider, Box } from '@mui/material';
+
 
 const client = generateClient<Schema>();
 
@@ -12,6 +14,7 @@ const PlayPage: React.FC = () => {
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [wordInterval, setWordInterval] = useState(5000);
   const [showOptions, setShowOptions] = useState(false);
+  const [isTapMode, setIsTapMode] = useState(false);
 
   useEffect(() => {
     if (listId) {
@@ -21,14 +24,14 @@ const PlayPage: React.FC = () => {
   }, [listId]);
 
   useEffect(() => {
-    if (words.length > 0) {
+    if (words.length > 0 && !isTapMode) {
       const timer = setInterval(() => {
         setCurrentWordIndex((prevIndex) => (prevIndex + 1) % words.length);
       }, wordInterval);
-
+  
       return () => clearInterval(timer);
     }
-  }, [words, wordInterval]);
+  }, [words, wordInterval, isTapMode]);
 
   const fetchListDetails = async (id: string) => {
     try {
@@ -48,30 +51,65 @@ const PlayPage: React.FC = () => {
     }
   };
 
-  const IntervalOptions: React.FC = () => (
-    <div style={{
-      position: 'absolute',
-      bottom: '60px',
-      right: '20px',
-      background: 'white',
-      padding: '10px',
-      borderRadius: '8px',
-      boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-    }}>
-      {[5, 7, 10, 15, 20].map(seconds => (
-        <button 
-          key={seconds} 
-          onClick={() => {
-            setWordInterval(seconds * 1000);
-            setShowOptions(false);
-          }}
-          style={{ display: 'block', margin: '5px', width: '100%' }}
-        >
-          {seconds}s
-        </button>
-      ))}
-    </div>
+  const SpeedControl: React.FC = () => (
+    <Box
+      sx={{
+        position: 'absolute',
+        bottom: '60px',
+        right: '20px',
+        bgcolor: 'white',
+        p: 2,
+        borderRadius: 2,
+        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+        height: '200px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center'
+      }}
+    >
+      <Slider
+        orientation="vertical"
+        min={1000}
+        max={21000}
+        step={1000}
+        value={wordInterval}
+        onChange={(event: Event, value: number | number[]) => {
+          const newValue = value as number;
+          if (newValue === 21000) {
+            setIsTapMode(true);
+          } else {
+            setIsTapMode(false);
+            setWordInterval(newValue);
+          }
+        }}
+        
+        sx={{
+          height: 150,
+          '& .MuiSlider-thumb': {
+            width: 28,
+            height: 28,
+          },
+          '& .MuiSlider-track': {
+            width: 8
+          },
+          '& .MuiSlider-rail': {
+            width: 8
+          }
+        }}
+      />
+      <Box sx={{ mt: 1, textAlign: 'center' }}>
+        {isTapMode ? 'Tap Mode' : `${wordInterval / 1000}s`}
+      </Box>
+    </Box>
   );
+  
+  
+
+  const handleWordTap = () => {
+    if (isTapMode) {
+      setCurrentWordIndex((prevIndex) => (prevIndex + 1) % words.length);
+    }
+  };
 
   return (
     <div style={{
@@ -93,31 +131,37 @@ const PlayPage: React.FC = () => {
         justifyContent: 'center',
         alignItems: 'center',
       }}>
-        <div style={{
-          fontSize: '36px',
-          fontWeight: 'bold',
-          marginBottom: '10px',
-        }}>
+        <div
+          onClick={handleWordTap}
+          style={{
+            fontSize: '36px',
+            fontWeight: 'bold',
+            marginBottom: '10px',
+            cursor: isTapMode ? 'pointer' : 'default'
+          }}
+        >
           {words[currentWordIndex]}
         </div>
-        <div style={{
-          width: '200px',
-          height: '4px',
-          backgroundColor: '#e0e0e0',
-          position: 'relative',
-        }}>
-          <div
-            key={currentWordIndex}
-            style={{
-              position: 'absolute',
-              left: 0,
-              top: 0,
-              height: '100%',
-              backgroundColor: 'black',
-              animation: `fillLine ${wordInterval / 1000}s linear`,
-            }}
-          />
-        </div>
+        {!isTapMode && (
+          <div style={{
+            width: '200px',
+            height: '4px',
+            backgroundColor: '#e0e0e0',
+            position: 'relative',
+          }}>
+            <div
+              key={currentWordIndex}
+              style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                height: '100%',
+                backgroundColor: 'black',
+                animation: `fillLine ${wordInterval / 1000}s linear`,
+              }}
+            />
+          </div>
+        )}
       </div>
       <div style={{
         position: 'absolute',
@@ -127,7 +171,7 @@ const PlayPage: React.FC = () => {
         <button onClick={() => setShowOptions(!showOptions)}>
           Configure Speed
         </button>
-        {showOptions && <IntervalOptions />}
+        {showOptions && <SpeedControl />}
       </div>
       <style>{`
         @keyframes fillLine {
@@ -137,6 +181,7 @@ const PlayPage: React.FC = () => {
       `}</style>
     </div>
   );
+  
 };
 
 export default PlayPage;

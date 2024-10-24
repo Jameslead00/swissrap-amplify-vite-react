@@ -145,13 +145,13 @@ const WordlistPage: React.FC = () => {
         padding: 0, 
         width: '100%', 
         maxWidth: '400px',
-        background: 'transparent'
+        background: 'transparent',
+        border: 'none'
       }}>
         {filteredLists.map(list => (
           <li key={list.id} style={{ 
             marginBottom: '10px', 
             padding: '15px', 
-            border: '1px solid #e0e0e0', 
             borderRadius: '8px',
             boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
             transition: 'box-shadow 0.3s ease',
@@ -167,7 +167,11 @@ const WordlistPage: React.FC = () => {
                 e.stopPropagation();
                 handlePlay(list.id);
               }}
-              style={{ cursor: 'pointer', color: '#4a4a4a' }}
+              sx={{ 
+                fontSize: 40,
+                cursor: 'pointer',
+                color: '#4a4a4a'
+              }}
             />
           </li>
         ))}
