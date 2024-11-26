@@ -13,7 +13,6 @@ const PlayPage: React.FC = () => {
   const [words, setWords] = useState<string[]>([]);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [wordInterval, setWordInterval] = useState(5000);
-  const [showOptions, setShowOptions] = useState(false);
   const [isTapMode, setIsTapMode] = useState(false);
 
   useEffect(() => {
@@ -45,7 +44,10 @@ const PlayPage: React.FC = () => {
   const fetchWords = async (id: string) => {
     try {
       const result = await client.models.Word.list({ filter: { listId: { eq: id } } });
-      setWords(result.data.map(word => word.content ?? ''));
+      const wordList = result.data.map(word => word.content ?? '');
+    // Shuffle the array using Fisher-Yates algorithm
+    const shuffledWords = [...wordList].sort(() => Math.random() - 0.5);
+    setWords(shuffledWords);
     } catch (error) {
       console.error('Error fetching words:', error);
     }
@@ -54,21 +56,21 @@ const PlayPage: React.FC = () => {
   const SpeedControl: React.FC = () => (
     <Box
       sx={{
-        position: 'absolute',
-        bottom: '60px',
-        right: '20px',
+        position: 'fixed',
+        bottom: '100px',
+        left: '0',
+        right: '0',
         bgcolor: 'white',
         p: 2,
-        borderRadius: 2,
-        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-        height: '200px',
         display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center'
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 2
       }}
     >
       <Slider
-        orientation="vertical"
+        orientation="horizontal"
         min={1000}
         max={21000}
         step={1000}
@@ -82,29 +84,25 @@ const PlayPage: React.FC = () => {
             setWordInterval(newValue);
           }
         }}
-        
-        
         sx={{
-          height: 150,
+          width: '80%',
           '& .MuiSlider-thumb': {
             width: 28,
             height: 28,
           },
           '& .MuiSlider-track': {
-            width: 8
+            height: 8
           },
           '& .MuiSlider-rail': {
-            width: 8
+            height: 8
           }
         }}
       />
-      <Box sx={{ mt: 1, textAlign: 'center' }}>
+      <Box sx={{ minWidth: '60px', textAlign: 'center' }}>
         {isTapMode ? 'Tap Mode' : `${wordInterval / 1000}s`}
       </Box>
     </Box>
   );
-  
-  
 
   const handleWordTap = () => {
     if (isTapMode) {
@@ -164,16 +162,7 @@ const PlayPage: React.FC = () => {
           </div>
         )}
       </div>
-      <div style={{
-        position: 'absolute',
-        bottom: '100px',
-        right: '20px',
-      }}>
-        <button onClick={() => setShowOptions(!showOptions)}>
-          Configure Speed
-        </button>
-        {showOptions && <SpeedControl />}
-      </div>
+      <SpeedControl />
       <style>{`
         @keyframes fillLine {
           0% { width: 0; }
